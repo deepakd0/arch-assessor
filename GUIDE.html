@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchAssessor — Visual Guide to the Spec Suite</title>
+<style>
+  :root {
+    --bg: #0b0e14;
+    --panel: #141926;
+    --panel2: #1b2233;
+    --border: #2a3348;
+    --text: #e6e9f0;
+    --muted: #93a0bd;
+    --accent: #5eb3ff;
+    --accent2: #7ee0c3;
+    --warn: #f0b429;
+    --crit: #ef5a5a;
+    --high: #f0824a;
+    --med: #f0b429;
+    --low: #7ee0c3;
+    --mono: "SF Mono", "Fira Code", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, #0b0e14 0%, #0d1119 100%);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  header {
+    padding: 48px 24px 32px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: radial-gradient(ellipse at top, rgba(94,179,255,0.08), transparent 60%);
+  }
+  header h1 { margin: 0 0 8px; font-size: 2rem; letter-spacing: -0.02em; }
+  header p.sub { color: var(--muted); max-width: 640px; margin: 0 auto; font-size: 1.05rem; }
+  header .status {
+    display: inline-block; margin-top: 16px; padding: 6px 14px;
+    background: var(--panel2); border: 1px solid var(--border); border-radius: 999px;
+    font-size: 0.85rem; color: var(--accent2);
+  }
+  nav.toc {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+    padding: 12px 16px; background: rgba(11,14,20,0.92); backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav.toc a {
+    padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; color: var(--muted);
+    border: 1px solid transparent;
+  }
+  nav.toc a:hover { color: var(--text); border-color: var(--border); text-decoration: none; background: var(--panel); }
+  main { max-width: 1080px; margin: 0 auto; padding: 40px 24px 100px; }
+  section { margin-bottom: 64px; }
+  h2 {
+    font-size: 1.5rem; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;
+  }
+  h2 .num {
+    font-family: var(--mono); font-size: 0.9rem; color: var(--bg); background: var(--accent);
+    padding: 2px 8px; border-radius: 5px;
+  }
+  p.lead { color: var(--muted); margin-top: 0; max-width: 760px; }
+
+  /* Pipeline diagram */
+  .pipeline {
+    display: flex; align-items: stretch; gap: 4px; flex-wrap: wrap; margin: 28px 0;
+  }
+  .stage {
+    flex: 1; min-width: 130px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 12px; position: relative;
+  }
+  .stage .spec-tag {
+    font-family: var(--mono); font-size: 0.7rem; color: var(--accent);
+    background: rgba(94,179,255,0.12); padding: 1px 6px; border-radius: 4px;
+    display: inline-block; margin-bottom: 6px;
+  }
+  .stage h4 { margin: 0 0 4px; font-size: 0.95rem; }
+  .stage p { margin: 0; font-size: 0.78rem; color: var(--muted); }
+  .arrow { display: flex; align-items: center; color: var(--muted); font-size: 1.3rem; padding: 0 2px; }
+  @media (max-width: 800px) { .arrow { display: none; } }
+
+  /* Document map grid */
+  .doc-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px; margin-top: 20px;
+  }
+  .doc-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px; transition: border-color .15s;
+  }
+  .doc-card:hover { border-color: var(--accent); }
+  .doc-card .kind {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--accent2); margin-bottom: 6px; font-weight: 600;
+  }
+  .doc-card h4 { margin: 0 0 6px; font-size: 1rem; }
+  .doc-card h4 a { color: var(--text); }
+  .doc-card p { margin: 0; font-size: 0.82rem; color: var(--muted); }
+
+  /* File tree */
+  .tree {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 24px; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto;
+  }
+  .tree .dir { color: var(--accent); }
+  .tree .file { color: var(--text); }
+  .tree .file a { color: inherit; }
+  .tree .desc { color: var(--muted); }
+  .tree .line { white-space: pre; }
+
+  /* Roadmap */
+  .roadmap { position: relative; margin-top: 24px; }
+  .phase {
+    display: grid; grid-template-columns: 90px 1fr; gap: 16px; margin-bottom: 4px;
+    position: relative; padding-bottom: 24px;
+  }
+  .phase:not(:last-child)::before {
+    content: ""; position: absolute; left: 44px; top: 30px; bottom: -4px; width: 2px;
+    background: var(--border);
+  }
+  .phase .dot {
+    width: 90px; display: flex; justify-content: center; align-items: flex-start; padding-top: 4px;
+  }
+  .phase .dot span {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--panel2);
+    border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.85rem; color: var(--accent); font-weight: 700;
+  }
+  .phase.done .dot span { background: var(--accent); color: var(--bg); }
+  .phase-body {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .phase-body h4 { margin: 0 0 4px; font-size: 1rem; }
+  .phase-body p { margin: 0; font-size: 0.85rem; color: var(--muted); }
+  .badge {
+    display: inline-block; font-size: 0.68rem; padding: 2px 8px; border-radius: 999px;
+    margin-left: 8px; vertical-align: middle; font-weight: 600;
+  }
+  .badge.specced { background: rgba(126,224,195,0.15); color: var(--accent2); }
+  .badge.planned { background: rgba(147,160,189,0.15); color: var(--muted); }
+
+  /* Coverage matrix */
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  td.ok { color: var(--accent2); }
+  tr:hover { background: rgba(255,255,255,0.02); }
+
+  .callout {
+    background: var(--panel2); border-left: 3px solid var(--accent); border-radius: 6px;
+    padding: 14px 18px; font-size: 0.9rem; color: var(--muted); margin-top: 20px;
+  }
+  .callout strong { color: var(--text); }
+
+  footer {
+    text-align: center; padding: 32px 24px; color: var(--muted); font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ArchAssessor — Spec Suite Guide</h1>
+  <p class="sub">A visual map of every document in this repository: what it is, where it lives, and how the pieces connect — from product rationale down to the CI job that enforces byte-determinism.</p>
+  <span class="status">📋 Specification phase — nothing implemented yet</span>
+</header>
+
+<nav class="toc">
+  <a href="#pipeline">Data pipeline</a>
+  <a href="#docmap">Document map</a>
+  <a href="#tree">File tree</a>
+  <a href="#roadmap">Roadmap</a>
+  <a href="#coverage">Quality coverage</a>
+  <a href="#start">Where to start</a>
+</nav>
+
+<main>
+
+<section id="pipeline">
+  <h2><span class="num">→</span> How data flows through the system</h2>
+  <p class="lead">Every Phase 1 spec is one box in this pipeline. The interfaces between boxes — the graph JSON, the rule YAML, the Assessment object — are fixed contracts, so each box can be built independently against its spec.</p>
+  <div class="pipeline">
+    <div class="stage">
+      <span class="spec-tag">spec 002</span>
+      <h4>Terraform files</h4>
+      <p>.tf directory, parsed offline — no credentials, no network</p>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <span class="spec-tag">spec 001</span>
+      <h4>Architecture Graph</h4>
+      <p>Canonical JSON: nodes + edges, closed taxonomy, versioned schema</p>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <span class="spec-tag">spec 004</span>
+      <h4>Evaluation Engine</h4>
+      <p>Pure function. Graph + Rules → Findings. Three-valued logic.</p>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <span class="spec-tag">spec 005</span>
+      <h4>Report Renderer</h4>
+      <p>Markdown / HTML / JSON — identical content, byte-deterministic</p>
+    </div>
+  </div>
+  <div class="pipeline" style="margin-top:-14px;">
+    <div class="stage" style="flex: 0 0 100%; border-style: dashed;">
+      <span class="spec-tag">spec 003</span>
+      <h4>Rules (YAML) — feeds into the Evaluation Engine above</h4>
+      <p>Declarative match + assert conditions, each with framework mappings (SOC 2, ISO 27001, PCI-DSS…). ~30 built-in rules ship in Phase 1.</p>
+    </div>
+  </div>
+  <div class="pipeline">
+    <div class="stage" style="flex: 0 0 100%;">
+      <span class="spec-tag">spec 006</span>
+      <h4>CLI (<code>archscan</code>) — orchestrates every box above</h4>
+      <p>The free distribution wedge. <code>archscan scan infra/</code> ties parser → rules → engine → report into one command, with a stable exit-code contract (0/1/2/3) for CI gating.</p>
+    </div>
+  </div>
+</section>
+
+<section id="docmap">
+  <h2><span class="num">📚</span> Document map — four kinds of document</h2>
+  <p class="lead">Each document answers a different question. Pick the one that matches what you need right now.</p>
+  <div class="doc-grid">
+    <div class="doc-card">
+      <div class="kind" style="color:var(--accent)">Why</div>
+      <h4><a href="PRD.md">PRD.md</a></h4>
+      <p>Problem, personas, user stories, success metrics, explicit non-goals. Read this to understand who this is for and why Phase 1 is scoped the way it is.</p>
+    </div>
+    <div class="doc-card">
+      <div class="kind">What — core</div>
+      <h4><a href="specs/000-overview.md">specs 000–006</a></h4>
+      <p>Implementation specs: graph schema, Terraform parser, rule format, evaluation engine, report renderer, CLI. Each has data structures, edge cases, and numbered acceptance tests.</p>
+    </div>
+    <div class="doc-card">
+      <div class="kind">What — quality bar</div>
+      <h4><a href="specs/007-nonfunctional-requirements.md">specs 007–011</a></h4>
+      <p>Non-functional requirements, threat model, test strategy, lifecycle/versioning, rule-pack governance. This is what separates a prototype from something production-grade.</p>
+    </div>
+    <div class="doc-card">
+      <div class="kind">Proof</div>
+      <h4><a href="TRACEABILITY.md">TRACEABILITY.md</a></h4>
+      <p>Every requirement (R-01…R-12) traced to the spec that designs it and the test that proves it. A requirement with no test listed isn't done.</p>
+    </div>
+    <div class="doc-card">
+      <div class="kind">Why not X</div>
+      <h4><a href="decisions/README.md">decisions/ (8 ADRs)</a></h4>
+      <p>Architecture Decision Records — the alternatives considered and rejected for HCL parsing, rule format, verdict logic, CLI stack, determinism, licensing, and scanner strategy.</p>
+    </div>
+    <div class="doc-card">
+      <div class="kind">Read first</div>
+      <h4><a href="README.md">README.md</a></h4>
+      <p>Entry point: pitch, design principles, roadmap, full document index. Start here if you're arriving cold.</p>
+    </div>
+  </div>
+</section>
+
+<section id="tree">
+  <h2><span class="num">🗂</span> Complete file tree</h2>
+  <div class="tree">
+<div class="line"><span class="dir">arch-assessor/</span></div>
+<div class="line">├── <span class="file"><a href="README.md">README.md</a></span>              <span class="desc">entry point — pitch, principles, roadmap, doc index</span></div>
+<div class="line">├── <span class="file"><a href="PRD.md">PRD.md</a></span>                  <span class="desc">problem, personas, user stories, success metrics</span></div>
+<div class="line">├── <span class="file"><a href="TRACEABILITY.md">TRACEABILITY.md</a></span>         <span class="desc">requirement → spec → test matrix</span></div>
+<div class="line">├── <span class="file"><a href="GUIDE.html">GUIDE.html</a></span>            <span class="desc">this page</span></div>
+<div class="line">│</div>
+<div class="line">├── <span class="dir">specs/</span>                <span class="desc">implementation + production-readiness specs</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/000-overview.md">000-overview.md</a></span>                              <span class="desc">glossary, repo layout, conventions — read first</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/001-architecture-graph-schema.md">001-architecture-graph-schema.md</a></span>              <span class="desc">the canonical graph model</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/002-terraform-parser.md">002-terraform-parser.md</a></span>                      <span class="desc">.tf → graph</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/003-rule-format-and-framework-mappings.md">003-rule-format-and-framework-mappings.md</a></span>   <span class="desc">YAML rules + SOC 2/ISO/PCI mappings</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/004-evaluation-engine.md">004-evaluation-engine.md</a></span>                    <span class="desc">pure function: graph+rules → findings</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/005-report-renderer.md">005-report-renderer.md</a></span>                     <span class="desc">MD / HTML / JSON reports</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/006-cli.md">006-cli.md</a></span>                                  <span class="desc">archscan — the distribution wedge</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/007-nonfunctional-requirements.md">007-nonfunctional-requirements.md</a></span>          <span class="desc">perf, portability, a11y, i18n, observability</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/008-threat-model.md">008-threat-model.md</a></span>                        <span class="desc">assets, trust boundaries, 10 threats + mitigations</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/009-test-strategy.md">009-test-strategy.md</a></span>                       <span class="desc">coverage gates, fuzzing, benchmarks, CI pipeline</span></div>
+<div class="line">│   ├── <span class="file"><a href="specs/010-lifecycle-versioning-support.md">010-lifecycle-versioning-support.md</a></span>        <span class="desc">semver, release process, license, support model</span></div>
+<div class="line">│   └── <span class="file"><a href="specs/011-rule-pack-governance.md">011-rule-pack-governance.md</a></span>                <span class="desc">who signs off on compliance mappings, and how</span></div>
+<div class="line">│</div>
+<div class="line">└── <span class="dir">decisions/</span>            <span class="desc">Architecture Decision Records (ADRs)</span></div>
+<div class="line">    ├── <span class="file"><a href="decisions/README.md">README.md</a></span>                                        <span class="desc">ADR index + format</span></div>
+<div class="line">    ├── <span class="file"><a href="decisions/0001-record-architecture-decisions.md">0001-record-architecture-decisions.md</a></span></div>
+<div class="line">    ├── <span class="file"><a href="decisions/0002-offline-hcl-parsing-with-python-hcl2.md">0002-offline-hcl-parsing-with-python-hcl2.md</a></span></div>
+<div class="line">    ├── <span class="file"><a href="decisions/0003-declarative-yaml-rules-not-code.md">0003-declarative-yaml-rules-not-code.md</a></span></div>
+<div class="line">    ├── <span class="file"><a href="decisions/0004-three-valued-verdict-logic.md">0004-three-valued-verdict-logic.md</a></span></div>
+<div class="line">    ├── <span class="file"><a href="decisions/0005-stdlib-cli-and-rendering.md">0005-stdlib-cli-and-rendering.md</a></span></div>
+<div class="line">    ├── <span class="file"><a href="decisions/0006-byte-deterministic-output.md">0006-byte-deterministic-output.md</a></span></div>
+<div class="line">    ├── <span class="file"><a href="decisions/0007-license-and-open-core.md">0007-license-and-open-core.md</a></span>          <span class="desc">(proposed — not yet accepted)</span></div>
+<div class="line">    └── <span class="file"><a href="decisions/0008-ingest-sarif-not-build-scanners.md">0008-ingest-sarif-not-build-scanners.md</a></span></div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <h2><span class="num">🛣</span> Roadmap</h2>
+  <p class="lead">Phase 1 is fully specced. Everything after it is sequenced but not yet written.</p>
+  <div class="roadmap">
+    <div class="phase done">
+      <div class="dot"><span>0</span></div>
+      <div class="phase-body">
+        <h4>Validate <span class="badge planned">in progress</span></h4>
+        <p>10–15 customer interviews + a Terraform→graph spike, before writing a line of product code.</p>
+      </div>
+    </div>
+    <div class="phase done">
+      <div class="dot"><span>1</span></div>
+      <div class="phase-body">
+        <h4>Core: graph, parser, engine, CLI <span class="badge specced">fully specced</span></h4>
+        <p>Free local CLI. Terraform → graph → SOC 2-mapped rule pack → scored report. Specs 000–011 cover this completely, including NFRs, threat model, and test strategy.</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="dot"><span>2</span></div>
+      <div class="phase-body">
+        <h4>Custom guardrails <span class="badge planned">planned</span></h4>
+        <p>Org-authored rules, CI enforcement (GitHub Action), SARIF importer for external scanners (ADR-0008).</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="dot"><span>3</span></div>
+      <div class="phase-body">
+        <h4>Hosted platform <span class="badge planned">planned</span></h4>
+        <p>Web dashboard, document ingestion, per-framework readiness views, evidence export, ISO 27001 pack. Commercial boundary per ADR-0007.</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="dot"><span>4</span></div>
+      <div class="phase-body">
+        <h4>Modeling DSL + doc generation <span class="badge planned">planned</span></h4>
+        <p>Manual architecture declaration; living C4-style documentation generated from the graph; PCI-DSS pack.</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="dot"><span>5</span></div>
+      <div class="phase-body">
+        <h4>Cloud scanning + drift <span class="badge planned">planned</span></h4>
+        <p>Read-only AWS connector; intended-vs-actual drift detection; HIPAA/GDPR technical-subset packs.</p>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="dot"><span>6</span></div>
+      <div class="phase-body">
+        <h4>Design assistant <span class="badge planned">planned</span></h4>
+        <p>Propose guardrail-compliant designs from requirements — the only phase where an LLM sits inside a generative (not extractive) role.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="coverage">
+  <h2><span class="num">✅</span> What makes this "production-grade" rather than a prototype spec</h2>
+  <p class="lead">The gap between a working prototype and a production-grade one is usually invisible until it's expensive. These are the specific things this suite pins down that a minimal spec set would skip.</p>
+  <table>
+    <tr><th>Concern</th><th>Where it's addressed</th><th>What it forces</th></tr>
+    <tr><td>Performance budgets</td><td>spec 007 §1</td><td class="ok">Numeric targets (e.g. 5,000 resources in &lt;30s, &lt;512MB) — not "should be fast"</td></tr>
+    <tr><td>Security threats</td><td>spec 008</td><td class="ok">10 named threats (YAML code exec, ReDoS, path traversal, XSS…) each with a required mitigation and a test</td></tr>
+    <tr><td>Determinism</td><td>ADR-0006, specs 000/001/004/005</td><td class="ok">Byte-identical output enforced by a dedicated CI job, not just "sorted where convenient"</td></tr>
+    <tr><td>Test rigor</td><td>spec 009</td><td class="ok">100% branch coverage on verdict logic, property-based tests, fuzz suite, real-world corpus job</td></tr>
+    <tr><td>Compliance mapping integrity</td><td>spec 011</td><td class="ok">Human SME sign-off required before any framework mapping ships — wrong mappings are worse than none</td></tr>
+    <tr><td>Versioning contract</td><td>spec 010 §1</td><td class="ok">Named "stable contracts" (exit codes, schema versions) that can never break without a major bump</td></tr>
+    <tr><td>Accessibility</td><td>spec 007 §5</td><td class="ok">WCAG-aligned contrast, no color-only severity signaling, semantic HTML</td></tr>
+    <tr><td>Supply chain</td><td>spec 008 T7/T8, spec 010 §4</td><td class="ok">Zero-CVE dependency gate, PyPI trusted publishing (OIDC), 2FA from day one</td></tr>
+    <tr><td>Requirement→test traceability</td><td>TRACEABILITY.md</td><td class="ok">Every PRD requirement has a named test or is explicitly flagged as an accepted manual gap</td></tr>
+  </table>
+  <div class="callout">
+    <strong>What's still missing before this is truly "complete":</strong> nothing in the document set is implemented yet. Specs de-risk <em>design</em> mistakes; they don't replace writing the code, running it against real-world Terraform repos, and finding the gaps only execution reveals (spec 009 §6's corpus suite exists precisely for this reason).
+  </div>
+</section>
+
+<section id="start">
+  <h2><span class="num">🚀</span> Where to start</h2>
+  <table>
+    <tr><th>You want to…</th><th>Read</th></tr>
+    <tr><td>Understand the pitch and who it's for</td><td><a href="PRD.md">PRD.md</a> §1–3</td></tr>
+    <tr><td>Start implementing, as a beginner</td><td><a href="specs/000-overview.md">specs/000</a> §7 — recommended build order (001 → 003 loader → 004 → 002 → 005 → 006)</td></tr>
+    <tr><td>Check if a feature is "done"</td><td><a href="TRACEABILITY.md">TRACEABILITY.md</a> — requirement must have a passing test listed</td></tr>
+    <tr><td>Understand a technical choice</td><td><a href="decisions/README.md">decisions/</a> — one ADR per significant decision</td></tr>
+    <tr><td>Review before shipping a rule</td><td><a href="specs/011-rule-pack-governance.md">specs/011</a> §3 — the PR checklist</td></tr>
+    <tr><td>Know the security posture</td><td><a href="specs/008-threat-model.md">specs/008</a> — full threat table</td></tr>
+  </table>
+</section>
+
+</main>
+
+<footer>
+  ArchAssessor spec suite — specification phase, 2026-07-02. This page is a navigation aid; the markdown files in this repository are the source of truth.
+</footer>
+
+</body>
+</html>
