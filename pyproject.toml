@@ -1,0 +1,103 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "arch-assessor"
+description = "Deterministic architecture assessment and validation platform"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [
+  {name = "Deepak Dobariyal", email = "deepak.dobariyal@gmail.com"}
+]
+keywords = [
+  "architecture",
+  "assessment",
+  "terraform",
+  "compliance",
+  "governance",
+  "validation"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: System :: Systems Administration"
+]
+requires-python = ">=3.13"
+dependencies = [
+  "python-hcl2==7.3.1",
+  "PyYAML==6.0.2"
+]
+dynamic = ["version"]
+
+[tool.hatch.version]
+path = "src/archassessor/__init__.py"
+pattern = '__version__ = "(?P<version>[^"]+)"'
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/archassessor"]
+
+[project.urls]
+Homepage = "https://github.com/YOUR_USERNAME/arch-assessor"
+Repository = "https://github.com/YOUR_USERNAME/arch-assessor"
+Documentation = "https://github.com/YOUR_USERNAME/arch-assessor"
+Issues = "https://github.com/YOUR_USERNAME/arch-assessor/issues"
+
+[project.scripts]
+archscan = "archassessor.cli.main:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+addopts = "--strict-markers -v"
+markers = [
+  "benchmark: performance tests",
+  "corpus: real-world Terraform corpus tests"
+]
+
+[tool.coverage.run]
+source = ["src/archassessor"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:"
+]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_configs = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = [".git", ".venv", "build", "dist"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "B", "UP", "C4", "T20"]
+ignore = ["E501", "W503"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["archassessor"]
+
+[tool.ruff.format]
+quote-style = "double"

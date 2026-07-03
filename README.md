@@ -6,9 +6,15 @@ later) and get a scored assessment against architecture guidelines, governance r
 compliance frameworks (SOC 2, ISO 27001, PCI-DSS, HIPAA/GDPR) — plus findings, remediation
 guidance, and auditor-friendly evidence.
 
-**Status: specification phase.** Nothing is implemented yet. Start with
-[PRD.md](PRD.md) for *why*, then [specs/000-overview.md](specs/000-overview.md) for *how* —
-or open [GUIDE.html](GUIDE.html) for a visual map of the whole document set.
+**Status: specification phase.** Nothing is implemented yet.
+
+**👉 [Start with GETTING_STARTED.md](GETTING_STARTED.md)** — quick setup, how to view the guide, and what's next.
+
+Or jump straight to:
+- **[PRD.md](PRD.md)** for the why (problem, personas, success metrics)
+- **[specs/000-overview.md](specs/000-overview.md)** for the how (implementation guide)
+- **[GUIDE.html](GUIDE.html)** for a visual map of the whole document set (open in browser)
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** if you want to implement Phase 1
 
 ## The one-sentence pitch
 
