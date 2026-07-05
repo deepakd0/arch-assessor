@@ -1,0 +1,66 @@
+- id: BASE-REL-001
+  title: Production databases should be multi-AZ
+  severity: high
+  category: reliability
+  description: >
+    A single-AZ database makes one availability zone outage a full data-layer
+    outage. Multi-AZ standby is the standard mitigation for RDS-style engines.
+  remediation: Set `multi_az = true` on the aws_db_instance.
+  mappings:
+    soc2: [A1.2]
+  match:
+    node_type: database
+    where:
+      property: engine
+      not_equals: dynamodb
+  assert:
+    property: multi_az
+    equals: true
+
+- id: BASE-REL-002
+  title: Databases must retain backups for at least 7 days
+  severity: high
+  category: reliability
+  description: >
+    Short retention windows mean data-corruption incidents discovered late
+    cannot be rolled back. Seven days is a floor, not a target.
+  remediation: Set `backup_retention_period = 7` (or more) on the database.
+  mappings:
+    soc2: [A1.2, A1.3]
+  match:
+    node_type: database
+  assert:
+    property: backup_retention_days
+    gte: 7
+
+- id: BASE-REL-003
+  title: Databases should enable deletion protection
+  severity: medium
+  category: reliability
+  description: >
+    Deletion protection is the last guard between a mistyped terraform destroy
+    and losing the primary datastore.
+  remediation: Set `deletion_protection = true` on the database.
+  mappings:
+    soc2: [A1.2]
+  match:
+    node_type: database
+  assert:
+    property: deletion_protection
+    equals: true
+
+- id: BASE-REL-004
+  title: Storage buckets should enable versioning
+  severity: low
+  category: reliability
+  description: >
+    Versioning turns accidental overwrites and deletions into recoverable
+    events instead of data loss.
+  remediation: Add an aws_s3_bucket_versioning resource with status Enabled.
+  mappings:
+    soc2: [A1.2]
+  match:
+    node_type: storage
+  assert:
+    property: versioning_enabled
+    equals: true

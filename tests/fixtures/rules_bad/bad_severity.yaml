@@ -1,0 +1,11 @@
+- id: TEST-SEC-001
+  title: Bad severity rule
+  severity: catastrophic
+  category: security
+  description: severity is not in the closed set
+  remediation: fix the severity
+  match:
+    node_type: database
+  assert:
+    property: encryption_at_rest
+    equals: true

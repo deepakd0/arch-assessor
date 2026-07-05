@@ -1,0 +1,22 @@
+- id: BASE-DATA-001
+  title: Databases holding classified data must reference a KMS key
+  severity: medium
+  category: data
+  description: >
+    A data-classification tag declares the database holds regulated data; such
+    databases should use a customer-managed key so access and rotation are
+    controllable and auditable.
+  remediation: >
+    Set `kms_key_id` on the database to a customer-managed aws_kms_key.
+  mappings:
+    soc2: [CC6.1]
+  match:
+    node_type: database
+    where:
+      has_tag_key: data-classification
+  assert:
+    related:
+      edge_type: depends_on
+      direction: outgoing
+      target_type: kms_key
+      exists: true

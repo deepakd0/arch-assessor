@@ -1,0 +1,37 @@
+- id: TEST-SEC-002
+  title: Fine rule
+  severity: high
+  category: security
+  description: a valid rule
+  remediation: nothing
+  match:
+    node_type: database
+  assert:
+    property: encryption_at_rest
+    equals: true
+
+- id: TEST-SEC-002
+  title: Duplicate id rule
+  severity: high
+  category: security
+  description: duplicate of the above
+  remediation: nothing
+  match:
+    node_type: database
+  assert:
+    property: encryption_at_rest
+    equals: true
+
+- id: TEST-SEC-003
+  title: Framework typo rule
+  severity: high
+  category: security
+  description: mappings key has a typo
+  remediation: nothing
+  mappings:
+    sco2: [CC6.1]
+  match:
+    node_type: database
+  assert:
+    property: encryption_at_rest
+    equals: true

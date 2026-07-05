@@ -1,0 +1,45 @@
+- id: BASE-OPS-001
+  title: Every resource must carry an owner tag
+  severity: medium
+  category: operations
+  description: >
+    Findings without an owner do not get fixed. The owner tag is what turns an
+    assessment into assigned work.
+  remediation: Add an `owner` tag (team or individual) to the resource.
+  mappings:
+    soc2: [CC1.3]
+  match:
+    node_type: any
+  assert:
+    has_tag_key: owner
+
+- id: BASE-OPS-002
+  title: Every resource must carry an environment tag
+  severity: low
+  category: operations
+  description: >
+    Without an environment tag, production and staging findings are
+    indistinguishable and severity cannot be triaged honestly.
+  remediation: Add an `environment` tag (e.g. production, staging) to the resource.
+  mappings:
+    soc2: [CC1.3]
+  match:
+    node_type: any
+  assert:
+    has_tag_key: environment
+
+- id: BASE-OPS-003
+  title: Storage buckets should have access logging
+  severity: medium
+  category: operations
+  description: >
+    Access logs are the evidence trail for who read what; without them,
+    incident investigations on bucket data go dark.
+  remediation: Add an aws_s3_bucket_logging resource targeting a log bucket.
+  mappings:
+    soc2: [CC7.2]
+  match:
+    node_type: storage
+  assert:
+    property: logging_enabled
+    equals: true

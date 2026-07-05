@@ -1,0 +1,19 @@
+- id: BASE-NET-001
+  title: Every compute instance must live in a subnet
+  severity: medium
+  category: network
+  description: >
+    An instance with no subnet relationship in the model either bypasses the
+    network design or the design is not captured — both are review findings.
+  remediation: >
+    Set `subnet_id` on the aws_instance so its network placement is explicit.
+  mappings:
+    soc2: [CC6.6]
+  match:
+    node_type: compute
+  assert:
+    related:
+      edge_type: contains
+      direction: incoming
+      target_type: subnet
+      exists: true

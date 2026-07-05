@@ -1,0 +1,196 @@
+- id: BASE-SEC-001
+  title: Databases must be encrypted at rest
+  severity: high
+  category: security
+  description: >
+    Unencrypted databases expose all stored data if storage media or snapshots
+    are accessed. Encryption at rest is table stakes for handling customer data.
+  remediation: >
+    Set `storage_encrypted = true` on the aws_db_instance / aws_rds_cluster.
+    Existing instances require a snapshot-restore migration.
+  mappings:
+    soc2: [CC6.1, CC6.7]
+    iso27001: [A.8.24]
+    pci_dss: ["3.5.1"]
+  match:
+    node_type: database
+  assert:
+    property: encryption_at_rest
+    equals: true
+
+- id: BASE-SEC-002
+  title: Object storage must be encrypted at rest
+  severity: high
+  category: security
+  description: >
+    Buckets frequently hold backups, logs, and exports containing sensitive
+    data. Server-side encryption protects contents if the storage layer or a
+    misconfigured client is compromised.
+  remediation: >
+    Add an aws_s3_bucket_server_side_encryption_configuration resource for the
+    bucket (SSE-S3 or SSE-KMS).
+  mappings:
+    soc2: [CC6.1, CC6.7]
+    iso27001: [A.8.24]
+  match:
+    node_type: storage
+  assert:
+    property: encryption_at_rest
+    equals: true
+
+- id: BASE-SEC-003
+  title: Queues must be encrypted at rest
+  severity: medium
+  category: security
+  description: >
+    Messages waiting in a queue often contain payloads with customer or
+    operational data; at-rest encryption covers the persistence layer.
+  remediation: >
+    Enable SQS-managed SSE (`sqs_managed_sse_enabled = true`) or set
+    `kms_master_key_id` on the queue.
+  mappings:
+    soc2: [CC6.1]
+  match:
+    node_type: queue
+  assert:
+    property: encryption_at_rest
+    equals: true
+
+- id: BASE-SEC-004
+  title: Topics must be encrypted at rest
+  severity: medium
+  category: security
+  description: >
+    Pub/sub topics buffer messages before fan-out; the same at-rest exposure
+    as queues applies.
+  remediation: Set `kms_master_key_id` on the aws_sns_topic.
+  mappings:
+    soc2: [CC6.1]
+  match:
+    node_type: topic
+  assert:
+    property: encryption_at_rest
+    equals: true
+
+- id: BASE-SEC-005
+  title: Databases must not be publicly accessible
+  severity: critical
+  category: security
+  description: >
+    A publicly reachable database endpoint turns any credential leak or engine
+    vulnerability into a direct data breach. Databases belong behind private
+    networking.
+  remediation: >
+    Set `publicly_accessible = false` and place the instance in private
+    subnets; reach it through a bastion, VPN, or service network.
+  mappings:
+    soc2: [CC6.1, CC6.6]
+    pci_dss: ["1.3.1"]
+  match:
+    node_type: database
+  assert:
+    property: publicly_accessible
+    not_equals: true
+
+- id: BASE-SEC-006
+  title: Storage buckets must block public access
+  severity: critical
+  category: security
+  description: >
+    Public bucket exposure is one of the most common causes of large-scale
+    data leaks. The public access block is the account-side safety net.
+  remediation: >
+    Add an aws_s3_bucket_public_access_block with all four settings true.
+  mappings:
+    soc2: [CC6.1, CC6.6]
+  match:
+    node_type: storage
+  assert:
+    property: public_access_blocked
+    equals: true
+
+- id: BASE-SEC-007
+  title: No security group may be open to the world on all ports
+  severity: critical
+  category: security
+  description: >
+    An all-ports 0.0.0.0/0 ingress rule makes every service behind the group
+    directly reachable from the internet, including anything started later.
+  remediation: >
+    Replace the all-ports rule with per-port rules scoped to known CIDRs or
+    security groups.
+  mappings:
+    soc2: [CC6.6]
+  match:
+    node_type: security_group
+  assert:
+    property: open_to_world_ports
+    not_contains: "0-65535"
+
+- id: BASE-SEC-008
+  title: SSH must not be open to the world
+  severity: high
+  category: security
+  description: >
+    Internet-wide SSH invites continuous brute-force and is unnecessary with
+    SSM, VPNs, or bastions.
+  remediation: >
+    Remove the 0.0.0.0/0 ingress on port 22; use AWS SSM Session Manager or
+    restrict to a VPN/bastion CIDR.
+  mappings:
+    soc2: [CC6.6]
+  match:
+    node_type: security_group
+  assert:
+    property: open_to_world_ports
+    not_contains: "22"
+
+- id: BASE-SEC-009
+  title: RDP must not be open to the world
+  severity: high
+  category: security
+  description: >
+    Internet-wide RDP is a top ransomware entry vector.
+  remediation: >
+    Remove the 0.0.0.0/0 ingress on port 3389; use a VPN or bastion instead.
+  mappings:
+    soc2: [CC6.6]
+  match:
+    node_type: security_group
+  assert:
+    property: open_to_world_ports
+    not_contains: "3389"
+
+- id: BASE-SEC-010
+  title: KMS keys must have rotation enabled
+  severity: medium
+  category: security
+  description: >
+    Key rotation caps the blast radius of an undetected key compromise and is
+    an expected baseline in audits.
+  remediation: Set `enable_key_rotation = true` on the aws_kms_key.
+  mappings:
+    soc2: [CC6.1]
+  match:
+    node_type: kms_key
+  assert:
+    property: rotation_enabled
+    equals: true
+
+- id: BASE-SEC-011
+  title: Compute instances should not have public IPs
+  severity: medium
+  category: security
+  description: >
+    Directly addressable instances bypass the load balancer / gateway layer
+    where TLS, WAF, and access controls live.
+  remediation: >
+    Set `associate_public_ip_address = false` and route ingress through a load
+    balancer; use NAT for egress.
+  mappings:
+    soc2: [CC6.6]
+  match:
+    node_type: compute
+  assert:
+    property: public_ip
+    not_equals: true

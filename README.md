@@ -6,7 +6,16 @@ later) and get a scored assessment against architecture guidelines, governance r
 compliance frameworks (SOC 2, ISO 27001, PCI-DSS, HIPAA/GDPR) — plus findings, remediation
 guidance, and auditor-friendly evidence.
 
-**Status: specification phase.** Nothing is implemented yet.
+**Status: Phase 1 core implemented and tested** — the `archscan` CLI works end-to-end
+(Terraform → graph → 20-rule SOC 2-mapped assessment → MD/HTML/JSON report; 104 tests,
+zero-CVE deps, byte-determinism verified). See
+**[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)** for exactly what is ~~done~~ vs.
+still open — that file is the hand-off list for continuing the work.
+
+```bash
+python3.13 -m venv venv && ./venv/bin/pip install -e .
+./venv/bin/archscan scan your-terraform-dir/
+```
 
 **👉 [Start with GETTING_STARTED.md](GETTING_STARTED.md)** — quick setup, how to view the guide, and what's next.
 
@@ -51,7 +60,7 @@ Confluence template and a quarterly review meeting.
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
 | 0 | Validation: 10–15 customer interviews + Terraform→graph spike | in progress |
-| 1 | **Core**: graph schema, Terraform parser, rules engine, SOC 2-mapped rule pack, report renderer, free local CLI | **specs written — see below** |
+| 1 | **Core**: graph schema, Terraform parser, rules engine, SOC 2-mapped rule pack, report renderer, free local CLI | **core implemented — see [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)** |
 | 2 | Custom org guardrails, CI enforcement (GitHub Action, exit codes), SARIF importer | planned |
 | 3 | Hosted web platform, document ingestion (LLM-assisted extraction + human confirm), per-framework readiness dashboards, evidence export, ISO 27001 pack | planned |
 | 4 | Manual modeling DSL, living architecture documentation generation (C4-style diagrams from the graph), PCI-DSS pack | planned |
