@@ -18,6 +18,7 @@ python3.13 -m venv venv && ./venv/bin/pip install -e .
 ```
 
 **👉 [Start with GETTING_STARTED.md](GETTING_STARTED.md)** — quick setup, how to view the guide, and what's next.
+**🎬 [STORYBOARD.html](STORYBOARD.html)** — visual done-vs-pending storyboard ([live version](https://deepakd0.github.io/arch-assessor/STORYBOARD.html)).
 
 Or jump straight to:
 - **[PRD.md](PRD.md)** for the why (problem, personas, success metrics)
