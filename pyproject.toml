@@ -67,3 +67,7 @@ ignore = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["archassessor"]
+
+[[tool.mypy.overrides]]
+module = "hcl2"
+ignore_missing_imports = true

@@ -148,16 +148,24 @@ def _write_output(text: str, output: Path | None) -> None:
     if output is None:
         sys.stdout.write(text)
         return
+    tmp: str | None = None
     try:
         # Atomic write: temp file in the destination directory, then rename (NFR-R3).
         fd, tmp = tempfile.mkstemp(dir=str(output.parent), suffix=".tmp")
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(text)
         os.replace(tmp, output)
+        tmp = None
     except OSError as exc:
         raise _UsageError(
             f"error: cannot write output file ({output}): {exc} — check the path and permissions"
         ) from exc
+    finally:
+        if tmp is not None:  # write or rename failed: do not leave the temp file behind
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
 
 
 def _cmd_scan(args: argparse.Namespace) -> int:

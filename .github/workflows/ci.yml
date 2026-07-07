@@ -72,12 +72,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - run: pip install ruff mypy -r requirements.txt
+      - run: pip install ruff mypy types-PyYAML -r requirements.txt
       - run: ruff check src/ tests/
       - run: ruff format --check src/ tests/
-      # Advisory until IMPLEMENTATION_STATUS.md item 2 (strict typing) is done.
       - run: mypy --strict src/
-        continue-on-error: true
       - name: No unsafe yaml.load (spec 008 T2)
         run: |
           if grep -rn "yaml\.load(" src/ --include="*.py"; then

@@ -18,7 +18,7 @@ from pathlib import Path
 import hcl2
 
 from archassessor import __version__
-from archassessor.graph.model import Edge, Graph, Node, SourceRef
+from archassessor.graph.model import Edge, Graph, Node, PropertyValue, SourceRef
 from archassessor.ingest.terraform.mappings import MODIFIER_TYPES, RESOURCE_MAP
 
 MAX_FILE_BYTES = 5 * 1024 * 1024  # threat T1 (spec 008)
@@ -38,6 +38,29 @@ def _unquote(label: object) -> str:
     if len(text) >= 2 and text[0] == '"' and text[-1] == '"':
         return text[1:-1]
     return text
+
+
+def _block_list(data: dict[str, object], key: str) -> list[object]:
+    """Top-level block lists ('resource', 'variable', …) or empty."""
+    value = data.get(key)
+    return value if isinstance(value, list) else []
+
+
+def _coerce_props(raw: dict[str, object]) -> dict[str, PropertyValue]:
+    """Clamp extractor output to the spec-001 property value types.
+
+    Anything structured that leaks out of HCL (nested blocks, mixed lists)
+    becomes null — "undeterminable" — rather than an invalid graph.
+    """
+    out: dict[str, PropertyValue] = {}
+    for key, value in raw.items():
+        if value is None or isinstance(value, str | int | float | bool):
+            out[key] = value
+        elif isinstance(value, list) and all(isinstance(item, str) for item in value):
+            out[key] = list(value)
+        else:
+            out[key] = None
+    return out
 
 
 def _normalize(value: object) -> object:
@@ -120,10 +143,16 @@ class _Parser:
         return files
 
     def _rel(self, path: Path) -> str:
+        # Prefer the unresolved path: a symlink under root whose *target*
+        # escapes must still be reported by its in-repo name (threat T4).
+        try:
+            return str(path.relative_to(self.root))
+        except ValueError:
+            pass
         try:
             return str(path.resolve().relative_to(self.root))
         except ValueError:
-            return str(path)
+            return path.name
 
     def _load(self, file: Path) -> dict[str, object] | None:
         self.files_total += 1
@@ -159,7 +188,7 @@ class _Parser:
         env: dict[str, object] = {}
         declared: set[str] = set()
         for _, data in documents:
-            for block in data.get("variable", []) or []:
+            for block in _block_list(data, "variable"):
                 if isinstance(block, dict):
                     for raw_name, body in block.items():
                         name = _unquote(raw_name)
@@ -168,7 +197,7 @@ class _Parser:
                             default = body["default"]
                             if not (isinstance(default, str) and "${" in default):
                                 env[f"var.{name}"] = default
-            for block in data.get("locals", []) or []:
+            for block in _block_list(data, "locals"):
                 if isinstance(block, dict):
                     for name, value in block.items():
                         if not (isinstance(value, str) and "${" in value):
@@ -180,7 +209,7 @@ class _Parser:
         # Pass B: resources.
         for rel, data in documents:
             resolver = self._make_resolver(env, undefined, rel)
-            for block in data.get("resource", []) or []:
+            for block in _block_list(data, "resource"):
                 if not isinstance(block, dict):
                     continue
                 for rtype, instances in block.items():
@@ -196,7 +225,7 @@ class _Parser:
         # Pass C: module calls.
         for rel, data in documents:
             resolver = self._make_resolver(env, undefined, rel)
-            for block in data.get("module", []) or []:
+            for block in _block_list(data, "module"):
                 if not isinstance(block, dict):
                     continue
                 for name, body in sorted(block.items()):
@@ -263,8 +292,9 @@ class _Parser:
 
         tags_raw = body.get("tags")
         tags = sorted(f"{k}={v}" for k, v in tags_raw.items()) if isinstance(tags_raw, dict) else []
-        props["tags"] = tags
-        props.setdefault("region", None)
+        properties = _coerce_props(props)
+        properties["tags"] = tags
+        properties.setdefault("region", None)
 
         if node_id in self.nodes:
             return  # duplicate resource address: keep the first occurrence
@@ -272,7 +302,7 @@ class _Parser:
             id=node_id,
             type=node_type,
             name=rname,
-            properties=props,
+            properties=properties,
             source=SourceRef(ingestor="terraform", file=file),
         )
         self.resources.append(raw)

@@ -11,8 +11,43 @@ import json
 from dataclasses import dataclass
 
 from archassessor.engine.conditions import Verdict, evaluate_condition
-from archassessor.graph.model import Graph, Node, SourceRef
+from archassessor.graph.model import Edge, Graph, Node, SourceRef
 from archassessor.rules.schema import Rule
+
+
+class _GraphIndex:
+    """O(1) node lookup and precomputed adjacency for bulk evaluation.
+
+    Built once per evaluate() call so relationship rules stay linear in
+    graph size (NFR-P5) instead of re-scanning and re-sorting edge lists
+    per node. Read-only over the input graph; purity is preserved.
+    """
+
+    def __init__(self, graph: Graph) -> None:
+        self._by_id: dict[str, Node] = {n.id: n for n in graph.nodes}
+        self._out: dict[tuple[str, str], list[Edge]] = {}
+        self._in: dict[tuple[str, str], list[Edge]] = {}
+        for edge in sorted(graph.edges, key=lambda e: e.id):
+            self._out.setdefault((edge.from_id, edge.type), []).append(edge)
+            self._in.setdefault((edge.to_id, edge.type), []).append(edge)
+
+    def node_by_id(self, node_id: str) -> Node | None:
+        return self._by_id.get(node_id)
+
+    def _select(
+        self, table: dict[tuple[str, str], list[Edge]], node_id: str, edge_type: str | None
+    ) -> list[Edge]:
+        if edge_type is not None:
+            return table.get((node_id, edge_type), [])
+        merged = [e for (nid, _), edges in table.items() if nid == node_id for e in edges]
+        return sorted(merged, key=lambda e: e.id)
+
+    def edges_from(self, node_id: str, edge_type: str | None = None) -> list[Edge]:
+        return self._select(self._out, node_id, edge_type)
+
+    def edges_to(self, node_id: str, edge_type: str | None = None) -> list[Edge]:
+        return self._select(self._in, node_id, edge_type)
+
 
 SEVERITY_ORDER = ("critical", "high", "medium", "low", "info")
 FAIL_PENALTY = {"critical": 15.0, "high": 10.0, "medium": 5.0, "low": 2.0, "info": 0.0}
@@ -74,16 +109,16 @@ class Assessment:
     schema_version: str = "1.0"
 
 
-def _subjects(graph: Graph, rule: Rule) -> list[Node]:
+def _subjects(nodes_sorted: list[Node], index: _GraphIndex, rule: Rule) -> list[Node]:
     if rule.match.node_types == ["any"]:
-        nodes = sorted(graph.nodes, key=lambda n: n.id)
+        nodes = nodes_sorted
     else:
         wanted = set(rule.match.node_types)
-        nodes = sorted((n for n in graph.nodes if n.type in wanted), key=lambda n: n.id)
+        nodes = [n for n in nodes_sorted if n.type in wanted]
     if rule.match.where is None:
         return nodes
     # Nodes whose filter is fail or unknown are excluded from subjects (spec 004 §4).
-    return [n for n in nodes if evaluate_condition(n, graph, rule.match.where)[0] == "pass"]
+    return [n for n in nodes if evaluate_condition(n, index, rule.match.where)[0] == "pass"]
 
 
 def _score(findings: list[Finding]) -> int:
@@ -168,14 +203,16 @@ def evaluate(
     findings: list[Finding] = list(external_findings)
     not_applicable: list[str] = []
     results_by_rule: dict[str, list[RuleResult]] = {}
+    index = _GraphIndex(graph)
+    nodes_sorted = sorted(graph.nodes, key=lambda n: n.id)
 
     for rule in sorted(rules, key=lambda r: r.id):
-        subjects = _subjects(graph, rule)
+        subjects = _subjects(nodes_sorted, index, rule)
         if not subjects:
             not_applicable.append(rule.id)
             continue
         for node in subjects:
-            verdict, detail = evaluate_condition(node, graph, rule.condition)
+            verdict, detail = evaluate_condition(node, index, rule.condition)
             result = RuleResult(rule_id=rule.id, node_id=node.id, verdict=verdict, detail=detail)
             results.append(result)
             results_by_rule.setdefault(rule.id, []).append(result)

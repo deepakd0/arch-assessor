@@ -155,8 +155,11 @@ def validate(graph: Graph) -> list[str]:
                 )
         if not node.source.ingestor:
             problems.append(f"node {node.id!r} source.ingestor must be non-empty")
-        if node.source.line is not None and node.source.line < 1:
-            problems.append(f"node {node.id!r} source.line must be >= 1")
+        line = node.source.line
+        if line is not None and (isinstance(line, bool) or not isinstance(line, int) or line < 1):
+            problems.append(f"node {node.id!r} source.line must be an integer >= 1")
+        if node.source.file is not None and not isinstance(node.source.file, str):
+            problems.append(f"node {node.id!r} source.file must be a string")
 
     node_ids = {n.id for n in graph.nodes}
     for edge in graph.edges:

@@ -84,17 +84,17 @@
   <h1>🎬 ArchAssessor — Project Storyboard</h1>
   <p>The whole journey in six scenes — what's <strong style="color:var(--green)">shipped</strong> (struck out) and what's <strong style="color:var(--amber)">waiting for the next builder</strong>. Source of truth: <a href="IMPLEMENTATION_STATUS.md">IMPLEMENTATION_STATUS.md</a>.</p>
   <div class="stats">
-    <div class="stat"><b>104</b><span>tests passing</span></div>
+    <div class="stat"><b>118</b><span>tests passing</span></div>
     <div class="stat"><b>20</b><span>builtin rules</span></div>
     <div class="stat"><b>0</b><span>known CVEs</span></div>
-    <div class="stat"><b>✓</b><span>CI green</span></div>
-    <div class="stat pending"><b>16</b><span>open tasks</span></div>
+    <div class="stat"><b>✓</b><span>mypy --strict</span></div>
+    <div class="stat pending"><b>12</b><span>open tasks</span></div>
   </div>
   <div class="progress-wrap">
     <div class="progress-label"><span>Phase 1 — core pipeline</span><span>done</span></div>
     <div class="progress"><i style="width: 100%"></i></div>
-    <div class="progress-label" style="margin-top:10px"><span>Phase 1 — production hardening</span><span>~25%</span></div>
-    <div class="progress"><i style="width: 25%; background: linear-gradient(90deg, var(--amber), #f59e0b)"></i></div>
+    <div class="progress-label" style="margin-top:10px"><span>Phase 1 — production hardening</span><span>~60%</span></div>
+    <div class="progress"><i style="width: 60%; background: linear-gradient(90deg, var(--amber), #f59e0b)"></i></div>
   </div>
 </header>
 
@@ -156,15 +156,16 @@
   <div class="scene active">
     <div class="scene-dot"><span>🔩</span></div>
     <div class="scene-body">
-      <h2>Scene 4 — Hardening <span class="badge pending">pending — next up</span></h2>
-      <p class="narr">The gap between "works and tested" and "production grade". Every item below is self-contained; the spec section named on the right defines done.</p>
+      <h2>Scene 4 — Hardening <span class="badge pending">in progress</span></h2>
+      <p class="narr">The gap between "works and tested" and "production grade". A Fable review pass (2026-07-05) fixed 5 defects found in the core (hostile-JSON crash, temp-file leak, symlink warning label, property-type leak, quadratic relationship rules) and closed the items below marked done.</p>
       <ul class="tasks">
+        <li class="t-done"><span class="mark">✓</span><span class="txt">mypy --strict clean on all source files; CI gate now blocking</span><span class="ref">NFR-M2</span></li>
+        <li class="t-done"><span class="mark">✓</span><span class="txt">Hostile/abuse suite: 5 MB cap (T1), symlink escape (T4), ReDoS timing (T3), hostile graph JSON, yaml.safe_load guard</span><span class="ref">009 §4</span></li>
+        <li class="t-done"><span class="mark">✓</span><span class="txt">Property-based tests (hypothesis): serialization stability, order-insensitivity, engine totality</span><span class="ref">009 §3</span></li>
+        <li class="t-done"><span class="mark">✓</span><span class="txt">O(1) graph index in the engine + 2,000-node scaling test; 100% branch coverage on verdict logic</span><span class="ref">NFR-P5</span></li>
         <li class="t-open"><span class="mark">○</span><span class="txt"><b>Golden-file tests</b> — commit expected .md/.html/.json bytes and compare exactly</span><span class="ref">005 §7.1</span></li>
-        <li class="t-open"><span class="mark">○</span><span class="txt"><b>mypy --strict</b> — 7 known errors; CI step is advisory until fixed</span><span class="ref">NFR-M2</span></li>
-        <li class="t-open"><span class="mark">○</span><span class="txt"><b>Coverage 86% → 90%</b> gate + 100% branch on conditions.py</span><span class="ref">009 §2</span></li>
-        <li class="t-open"><span class="mark">○</span><span class="txt"><b>Hostile fixtures</b> for the 5 MB cap (W007) and symlink escape (W008) — code exists, tests don't</span><span class="ref">009 §4</span></li>
-        <li class="t-open"><span class="mark">○</span><span class="txt"><b>Property-based tests</b> (hypothesis): round-trip, order-insensitivity, engine totality</span><span class="ref">009 §3</span></li>
-        <li class="t-open"><span class="mark">○</span><span class="txt"><b>Benchmarks</b> + fixture generator; add an id→node index (node_by_id is O(n)) before the 5k target</span><span class="ref">009 §5</span></li>
+        <li class="t-open"><span class="mark">○</span><span class="txt"><b>Coverage 86% → 90%</b> — remaining gap is loader/schema error paths</span><span class="ref">009 §2</span></li>
+        <li class="t-open"><span class="mark">○</span><span class="txt"><b>Benchmark harness</b> + synthetic fixture generator (index prerequisite is done)</span><span class="ref">009 §5</span></li>
         <li class="t-open"><span class="mark">○</span><span class="txt"><b>Parser leftovers</b>: .tfvars, count/for_each expansion, remote-module + logging-modifier tests</span><span class="ref">002</span></li>
         <li class="t-open"><span class="mark">○</span><span class="txt"><b>Rule pack 20 → 25+</b>: NET-002/003, more ISO 27001 / PCI-DSS mappings</span><span class="ref">003 §7</span></li>
       </ul>

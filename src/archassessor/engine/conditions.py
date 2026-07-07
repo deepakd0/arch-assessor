@@ -10,11 +10,27 @@ from __future__ import annotations
 
 import json
 import re
+from typing import Protocol
 
-from archassessor.graph.model import Graph, Node
+from archassessor.graph.model import Edge, Node
 from archassessor.rules.schema import Combinator, Condition, Leaf, Related
 
 Verdict = str  # "pass" | "fail" | "unknown"
+
+
+class GraphLike(Protocol):
+    """What condition evaluation needs from a graph.
+
+    Both the canonical Graph and the engine's O(1) _GraphIndex satisfy this,
+    so the same evaluator serves ad-hoc calls and indexed bulk evaluation.
+    """
+
+    def node_by_id(self, node_id: str) -> Node | None: ...
+
+    def edges_from(self, node_id: str, edge_type: str | None = None) -> list[Edge]: ...
+
+    def edges_to(self, node_id: str, edge_type: str | None = None) -> list[Edge]: ...
+
 
 MAX_MATCHED_STRING = 4096  # threat T3: cap regex subject length (spec 008)
 
@@ -92,7 +108,7 @@ def _leaf(node: Node, cond: Leaf) -> tuple[Verdict, str]:
     return ("pass" if ok else "fail"), detail
 
 
-def _related(node: Node, graph: Graph, cond: Related) -> tuple[Verdict, str]:
+def _related(node: Node, graph: GraphLike, cond: Related) -> tuple[Verdict, str]:
     edges = (
         graph.edges_from(node.id, cond.edge_type)
         if cond.direction == "outgoing"
@@ -120,7 +136,7 @@ def _related(node: Node, graph: Graph, cond: Related) -> tuple[Verdict, str]:
     return "pass", f"no {cond.direction} `{cond.edge_type}` edge{target}, as required"
 
 
-def _combine(node: Node, graph: Graph, cond: Combinator) -> tuple[Verdict, str]:
+def _combine(node: Node, graph: GraphLike, cond: Combinator) -> tuple[Verdict, str]:
     # Evaluate every child (no short-circuit) so details stay stable (spec 004 §5.2).
     outcomes = [evaluate_condition(node, graph, child) for child in cond.children]
     verdicts = [v for v, _ in outcomes]
@@ -139,7 +155,7 @@ def _combine(node: Node, graph: Graph, cond: Combinator) -> tuple[Verdict, str]:
     return verdict, "; ".join(details)
 
 
-def evaluate_condition(node: Node, graph: Graph, cond: Condition) -> tuple[Verdict, str]:
+def evaluate_condition(node: Node, graph: GraphLike, cond: Condition) -> tuple[Verdict, str]:
     """Evaluate one condition against one node; pure, deterministic."""
     if isinstance(cond, Leaf):
         return _leaf(node, cond)

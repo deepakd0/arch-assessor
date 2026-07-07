@@ -1,9 +1,20 @@
 # Implementation Status — Phase 1
 
-**Last updated: 2026-07-05.** ~~Struck-out~~ items are **built, tested, and passing** (104 tests,
-`ruff` clean, `pip-audit` zero CVEs, cross-process determinism verified). Unstruck items are
-open work — each one names the spec section that defines it, so any model or developer can
-pick it up without this conversation's context.
+**Last updated: 2026-07-05 (post-review).** ~~Struck-out~~ items are **built, tested, and
+passing** (118 tests, `ruff` clean, `mypy --strict` clean, `pip-audit` zero CVEs,
+cross-process determinism verified). Unstruck items are open work — each one names the spec
+section that defines it, so any model or developer can pick it up without this
+conversation's context.
+
+**Review pass (2026-07-05, Fable):** a correctness/security/efficiency review of the core
+found and fixed: (a) `from_json` crashed with an uncaught TypeError on hostile documents
+with a non-integer `source.line` — now validated; (b) the CLI's atomic write leaked its
+temp file when the write itself failed — now cleaned up in a `finally`; (c) symlink-escape
+warnings (W008) reported the absolute *target* path instead of the in-repo name; (d) an HCL
+attribute resolving to a nested structure could leak a spec-invalid property value into the
+graph — extractor output is now clamped to spec-001 types (`_coerce_props`); (e) relationship
+rules were super-linear (O(N·E) node lookups + per-call edge sorts) — the engine now builds
+an O(1) `_GraphIndex` once per `evaluate()` (guarded by a 2,000-node scaling test).
 
 **How to verify the done items yourself:**
 
@@ -30,12 +41,12 @@ python3.13 -m venv venv && ./venv/bin/pip install -e . pytest
 ### Correctness & spec completion
 
 1. **Golden-file tests** (spec 005 §7.1, spec 009): commit expected `.md`/`.html`/`.json` outputs for a fixture assessment and byte-compare. Current tests assert structure, not full bytes.
-2. **`mypy --strict` compliance** (NFR-M2): code has type hints but was never run through strict mypy; CI's `lint-and-type` job will likely fail until annotations are tightened (hcl2 has no stubs — needs `ignore_missing_imports` for it).
+2. ~~**`mypy --strict` compliance** (NFR-M2): clean on all 20 source files; CI step is now blocking (types-PyYAML installed, hcl2 override in pyproject).~~
 3. **Rule pack to 25+ rules** (spec 003 §7): missing BASE-NET-002 (internet-facing LB surfacing), BASE-NET-003 (DB/LB subnet separation — needs design decision, see spec note), and ISO 27001/PCI-DSS mappings on more rules.
-4. **Spec 002 leftovers**: `.tfvars` files; `aws_s3_bucket_logging` sets `logging_enabled` but has no test; `count`/`for_each` warning (W005) exists but expansion doesn't; remote-module W003 has no test; W007 (5 MB cap) and W008 (symlink escape) implemented but untested — write the hostile fixtures (spec 009 §4 T1/T4).
-5. **Property-based tests** (spec 009 §3): `hypothesis` generators for graph round-trip, order insensitivity, engine totality. Not started.
-6. **Benchmarks** (spec 009 §5, NFR-P1–P3): `tests/gen_fixture.py` synthetic repo generator + timing/memory tests. Not started. Note: `Graph.node_by_id` is O(n) — fine at fixture scale, needs an id→node index dict before the 5k-resource target.
-7. **Coverage gate** (spec 009 §2): wire `--cov-fail-under=90` + 100%-branch check on `engine/conditions.py` into CI once mypy passes.
+4. **Spec 002 leftovers**: `.tfvars` files; `aws_s3_bucket_logging` sets `logging_enabled` but has no test; `count`/`for_each` warning (W005) exists but expansion doesn't; remote-module W003 has no test. ~~W007 (5 MB cap) and W008 (symlink escape) hostile fixtures — tested in tests/test_hostile.py (T1/T4), plus ReDoS timing (T3) and hostile graph JSON.~~
+5. ~~**Property-based tests** (spec 009 §3): hypothesis suite in tests/test_properties.py — canonical-serialization stability, insertion-order insensitivity, engine totality/determinism over generated graphs and condition trees.~~
+6. **Benchmarks** (spec 009 §5, NFR-P1–P3): `tests/gen_fixture.py` synthetic repo generator + timing/memory tests. Not started. ~~The id→node index exists now (`_GraphIndex` in the engine, with a 2,000-node scaling test)~~ — remaining work is the benchmark harness itself.
+7. **Coverage gate** (spec 009 §2): overall 86% vs the 90% target (CI floor currently 80). ~~100%-branch on `engine/conditions.py` — achieved and visible in coverage output.~~ Remaining gap is mostly loader/schema error paths.
 
 ### Process & repo
 
