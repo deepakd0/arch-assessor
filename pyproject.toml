@@ -42,10 +42,12 @@ packages = ["src/archassessor"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "--strict-markers"
+# Benchmarks and corpus tests are opt-in (slow / need network): pass an
+# explicit -m to run them, e.g. `pytest tests/ -m benchmark`.
+addopts = "--strict-markers -m \"not benchmark and not corpus\""
 markers = [
-  "benchmark: performance tests (spec 009 §5)",
-  "corpus: real-world Terraform corpus tests (spec 009 §6)",
+  "benchmark: performance tests, opt-in only (spec 009 §5)",
+  "corpus: real-world Terraform corpus tests, opt-in only, needs network (spec 009 §6)",
 ]
 
 [tool.coverage.run]

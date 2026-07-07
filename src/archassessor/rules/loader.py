@@ -167,18 +167,3 @@ def load_rules(paths: list[Path]) -> list[Rule]:
 def load_builtin_pack() -> list[Rule]:
     """Load the rule pack shipped inside the package."""
     return load_rules([Path(__file__).parent / "builtin"])
-
-
-def check_duplicate_ids(rules: list[Rule]) -> None:
-    """Reject duplicate ids across combined packs (threat T10, spec 008)."""
-    seen: dict[str, str] = {}
-    problems: list[str] = []
-    for rule in rules:
-        if rule.id in seen and seen[rule.id] != rule.source_file:
-            problems.append(
-                f"duplicate rule id {rule.id!r}: defined in both {seen[rule.id]} "
-                f"and {rule.source_file} — custom packs must use their own id prefix"
-            )
-        seen.setdefault(rule.id, rule.source_file)
-    if problems:
-        raise RuleLoadError(sorted(problems))

@@ -2,7 +2,9 @@
 
 ## Reporting vulnerabilities
 
-**Do not** open a public GitHub issue for security vulnerabilities. Instead, email **security@example.com** with:
+**Do not** open a public GitHub issue for security vulnerabilities. Instead, use
+[GitHub private vulnerability reporting](https://github.com/deepakd0/arch-assessor/security/advisories/new)
+(Security tab → Report a vulnerability). Include:
 
 - Description of the vulnerability
 - Affected version (or "main branch")
@@ -62,8 +64,8 @@ Run all security tests: `pytest tests/test_hostile.py -v`
 
 ## Disclosure history
 
-*None yet — this is specification phase, no code is implemented.*
+*None reported yet.*
 
 ---
 
-**Status:** Specification phase, 2026-07-03 · No vulnerabilities reported yet
+**Status:** Phase 1 core implemented and tested · Last updated 2026-07-06 · No vulnerabilities reported yet

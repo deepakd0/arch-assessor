@@ -1,45 +1,64 @@
 # Getting Started with ArchAssessor
 
-This is a **specification-phase project** — the complete design docs for an architecture assessment platform, ready for implementation. Nothing is built yet; this repo is 100% specs, design decisions, and planning.
+**Phase 1 core is implemented and working.** The `archscan` CLI parses a Terraform
+directory offline, evaluates it against a built-in SOC 2-mapped rule pack, and
+produces a scored Markdown / HTML / JSON assessment. See
+[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for exactly what is done vs.
+still open, and the full spec suite (`specs/`) for the design behind it.
 
 ## Prerequisites
 
+- **Python 3.13+** (to run the `archscan` CLI)
 - **Git** (to clone the repo)
-- **Node.js 14+** (to view the interactive guide)
+- Optional: **Node.js 14+** (only to view the interactive `GUIDE.html` spec map)
 
-**No other dependencies.** All specs are plain Markdown and HTML; no build steps needed.
+Runtime dependencies are just two pinned packages (`python-hcl2`, `PyYAML`).
 
-## Quick start (5 minutes)
-
-### 1. Clone the repository
+## Quick start — run a scan (5 minutes)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/arch-assessor.git
+git clone https://github.com/deepakd0/arch-assessor.git
 cd arch-assessor
+
+python3.13 -m venv venv
+./venv/bin/pip install -e .
+
+# Assess the bundled fixture, or point it at your own Terraform directory:
+./venv/bin/archscan scan tests/fixtures/terraform/simple
+./venv/bin/archscan scan /path/to/your/terraform --format html -o report.html
 ```
 
-(Or download as ZIP and extract.)
-
-### 2. View the visual guide
-
-#### Option A: Local preview with Node (recommended)
+Useful commands:
 
 ```bash
-node serve.mjs
+archscan scan DIR --fail-on high      # exit 1 if any high+ finding (CI gating)
+archscan graph DIR                    # dump the parsed architecture graph as JSON
+archscan rules list                   # list the built-in rule pack
+archscan --help                       # full flag reference
 ```
 
-Then open **http://localhost:4173** in your browser. You'll see the interactive `GUIDE.html` — a dark-themed map of the entire spec suite, with pipeline diagrams, file tree, and roadmap.
+Run the tests to verify the build (193 tests, ~4s):
 
-#### Option B: Open files directly
+```bash
+./venv/bin/pip install pytest pytest-cov hypothesis
+./venv/bin/pytest tests/ -q
+```
+
+## View the visual spec guide (optional)
+
+```bash
+node serve.mjs     # then open http://localhost:4173
+```
+
+A dark-themed map of the entire spec suite — pipeline diagrams, file tree, roadmap.
+Or open the files directly:
 
 - **Start here:** [README.md](README.md) — the executive summary, pitch, roadmap.
 - **For decision makers:** [PRD.md](PRD.md) — personas, user stories, success metrics.
 - **For builders:** [specs/000-overview.md](specs/000-overview.md) — conventions, build order, glossary.
 - **For complete picture:** [GUIDE.html](GUIDE.html) — open in any browser (no server needed).
 
-### 3. Read the docs
-
-**In suggested order:**
+### Reading order for the design docs
 
 1. [README.md](README.md) — "What is this, who's it for, why Phase 1 is shaped this way"
 2. [PRD.md](PRD.md) — "Who are the personas, what are we measuring success by"
@@ -98,7 +117,7 @@ arch-assessor/
 
 ```bash
 # Clone
-git clone https://github.com/YOUR_USERNAME/arch-assessor.git
+git clone https://github.com/deepakd0/arch-assessor.git
 cd arch-assessor
 
 # Serve the guide
@@ -113,7 +132,7 @@ open http://localhost:4173
 
 ```powershell
 # Clone
-git clone https://github.com/YOUR_USERNAME/arch-assessor.git
+git clone https://github.com/deepakd0/arch-assessor.git
 cd arch-assessor
 
 # Serve the guide
@@ -157,22 +176,24 @@ This starts the server and opens a live preview panel in Claude Code.
 
 ## What's next?
 
-This repo is a **specification blueprint**. To build the actual product:
+**Phase 1 core is built** (`src/archassessor/`, 193 tests, mypy-strict clean). To
+extend it, see [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for the ordered
+list of remaining Phase-1 hardening items and Phase-2 features, and
+[CONTRIBUTING.md](CONTRIBUTING.md) for the workflow. In brief:
 
-1. **Read** the specs in the order suggested above.
-2. **Implement Phase 1** starting with spec 001 (graph schema) → 003 (rule loader) → 004 (engine) → 002 (parser) → 005 (renderer) → 006 (CLI). Each spec has numbered acceptance criteria that become pytest tests.
-3. **Set up the repo structure** as described in spec 000 §3 (`src/archassessor/`, `tests/`, etc.).
-4. **Run tests** per spec 009 to gate every feature.
-5. **Follow the ADRs** in `decisions/` — they document why each choice was made; re-read them before deviating.
+1. **Pick an open item** from IMPLEMENTATION_STATUS.md (each names the spec section that defines "done").
+2. **Follow the spec** — every spec (`specs/001`–`011`) has numbered acceptance criteria that become pytest tests.
+3. **Run the gates** before a PR: `pytest tests/ -q`, `ruff check`, `mypy --strict src/` (all wired into CI).
+4. **Follow the ADRs** in `decisions/` — they record why each choice was made; re-read before deviating.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the implementation playbook.
+## Status
 
-## Specification status
+- **Phase 1** (MVP): specced (specs 000–011, PRD, ADRs) **and core implemented** — see [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for the done/open breakdown.
+- **Phase 2–6** (roadmap): planned; specs not yet written.
 
-- **Phase 1** (MVP): fully specified (specs 000–011, PRD, all decision records).
-- **Phase 2–6** (roadmap): planned but not yet specced.
-
-No code is implemented yet. This is purely a design and planning artifact.
+One human gate remains before any public `0.1.0`: an SME must sign off the SOC 2 /
+ISO / PCI mappings (a technical pre-review is recorded in
+`src/archassessor/rules/builtin/MAPPING-REVIEWS.md`).
 
 ## Questions or issues?
 
@@ -182,4 +203,4 @@ For everything else, open an issue on GitHub — this repo is public and contrib
 
 ---
 
-**Status:** Specification phase, 2026-07-03 · **License:** Apache-2.0 · **Next:** Implementation phase
+**Status:** Phase 1 core implemented and tested · Last updated 2026-07-06 · **License:** Apache-2.0

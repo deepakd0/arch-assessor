@@ -95,10 +95,24 @@ jobs:
         with:
           python-version: "3.13"
       - run: pip install -r requirements.txt pytest pytest-cov hypothesis
-      # Floor is 80 today (current: 86%); raise to the spec 009 §2 gate of 90
-      # as part of IMPLEMENTATION_STATUS.md item 7.
+      # benchmark/corpus are excluded by default (pyproject addopts); they run
+      # in their own jobs below. Actual coverage is ~97%; floor set a few
+      # points under to absorb minor drift.
       - name: Full suite with coverage floor
-        run: pytest tests/ -v --cov=src/archassessor --cov-branch --cov-fail-under=80
+        run: pytest tests/ -v --cov=src/archassessor --cov-branch --cov-fail-under=95
+
+  benchmarks:
+    needs: detect-code
+    if: needs.detect-code.outputs.has_code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements.txt pytest .
+      - name: Performance budgets (spec 007 NFR-P1..P3, spec 009 §5)
+        run: pytest tests/test_benchmarks.py -v -m benchmark
 
   determinism:
     needs: detect-code

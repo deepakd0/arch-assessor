@@ -1,0 +1,11 @@
+- id: BASE-SEC-001
+  title: Custom rule colliding with the builtin pack
+  severity: high
+  category: security
+  description: this id deliberately collides with a builtin rule
+  remediation: rename this rule's id to use your own prefix
+  match:
+    node_type: database
+  assert:
+    property: encryption_at_rest
+    equals: true

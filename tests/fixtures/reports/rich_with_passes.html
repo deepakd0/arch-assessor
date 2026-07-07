@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Architecture Assessment Report</title>
+<style>
+body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+       max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #1f2937; }
+blockquote { border-left: 4px solid #94a3b8; margin: 1rem 0; padding: 0.5rem 1rem;
+             color: #475569; background: #f8fafc; }
+table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; }
+th, td { text-align: left; border-bottom: 1px solid #e2e8f0; padding: 6px 10px; }
+.finding { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px;
+           margin: 0 0 12px; }
+.sev { font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
+code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; }
+.muted { color: #64748b; }
+</style>
+</head>
+<body>
+<h1>Architecture Assessment Report</h1>
+<blockquote>This report is an automated readiness assessment. It provides evidence and gap analysis against the configured rules and framework mappings. It does not certify or guarantee compliance with any framework or regulation.</blockquote>
+<h2>Summary</h2>
+<ul>
+<li><strong>Score: 63 / 100</strong> <span class="muted">(100 minus severity-weighted penalties: critical 15, high 10, medium 5, low 2; unknowns count half)</span></li>
+<li>Nodes assessed: 8 | Rules evaluated: 7 | Not applicable: 1</li>
+<li>Findings: 1 critical, 1 high, 1 medium, 1 low, 1 info | Unknowns: 1</li>
+</ul>
+<h2>Findings</h2>
+<h3>Critical</h3>
+<div class="finding" style="border-left: 6px solid #b91c1c;">
+<span class="sev" style="color: #b91c1c;">critical</span> 
+<strong>[GOLD-SEC-001] Golden rule GOLD-SEC-001</strong> — <code>a</code> (storage)
+<ul>
+<li><strong>Where:</strong> <code>main.tf:1</code></li>
+<li><strong>What:</strong> `prop` is false (expected true) for GOLD-SEC-001</li>
+<li><strong>Why it matters:</strong> Why GOLD-SEC-001 matters.</li>
+<li><strong>Remediation:</strong> Fix GOLD-SEC-001 by setting the property to true.</li>
+<li><strong>Framework impact:</strong> SOC 2 CC6.1</li>
+</ul>
+</div>
+<h3>High</h3>
+<div class="finding" style="border-left: 6px solid #ea580c;">
+<span class="sev" style="color: #ea580c;">high</span> 
+<strong>[GOLD-SEC-002] Golden rule GOLD-SEC-002</strong> — <code>b</code> (database)
+<ul>
+<li><strong>Where:</strong> <code>main.tf:1</code></li>
+<li><strong>What:</strong> `prop` is false (expected true) for GOLD-SEC-002</li>
+<li><strong>Why it matters:</strong> Why GOLD-SEC-002 matters.</li>
+<li><strong>Remediation:</strong> Fix GOLD-SEC-002 by setting the property to true.</li>
+<li><strong>Framework impact:</strong> SOC 2 CC6.6</li>
+</ul>
+</div>
+<h3>Medium</h3>
+<div class="finding" style="border-left: 6px solid #d97706;">
+<span class="sev" style="color: #d97706;">medium</span> 
+<strong>[GOLD-SEC-003] Golden rule GOLD-SEC-003</strong> — <code>c</code> (kms_key)
+<ul>
+<li><strong>Where:</strong> <code>main.tf:1</code></li>
+<li><strong>What:</strong> `prop` is false (expected true) for GOLD-SEC-003</li>
+<li><strong>Why it matters:</strong> Why GOLD-SEC-003 matters.</li>
+<li><strong>Remediation:</strong> Fix GOLD-SEC-003 by setting the property to true.</li>
+<li><strong>Framework impact:</strong> SOC 2 CC6.1</li>
+</ul>
+</div>
+<h3>Low</h3>
+<div class="finding" style="border-left: 6px solid #65a30d;">
+<span class="sev" style="color: #65a30d;">low</span> 
+<strong>[GOLD-SEC-004] Golden rule GOLD-SEC-004</strong> — <code>d</code> (storage)
+<ul>
+<li><strong>Where:</strong> <code>main.tf:1</code></li>
+<li><strong>What:</strong> `prop` is false (expected true) for GOLD-SEC-004</li>
+<li><strong>Why it matters:</strong> Why GOLD-SEC-004 matters.</li>
+<li><strong>Remediation:</strong> Fix GOLD-SEC-004 by setting the property to true.</li>
+</ul>
+</div>
+<h3>Info</h3>
+<div class="finding" style="border-left: 6px solid #64748b;">
+<span class="sev" style="color: #64748b;">info</span> 
+<strong>[GOLD-NET-001] Golden rule GOLD-NET-001</strong> — <code>e</code> (load_balancer)
+<ul>
+<li><strong>What:</strong> `prop` is false (expected true) for GOLD-NET-001</li>
+<li><strong>Why it matters:</strong> Why GOLD-NET-001 matters.</li>
+<li><strong>Remediation:</strong> Fix GOLD-NET-001 by setting the property to true.</li>
+</ul>
+</div>
+<h3>Needs data (unknown)</h3>
+<div class="finding" style="border-left: 6px solid #64748b;">
+<span class="sev" style="color: #64748b;">unknown</span> 
+<strong>[GOLD-SEC-005] Golden rule GOLD-SEC-005</strong> — <code>f</code> (database)
+<ul>
+<li><strong>Where:</strong> <code>main.tf:1</code></li>
+<li><strong>What:</strong> `prop` is false (expected true) for GOLD-SEC-005</li>
+<li><strong>How to resolve:</strong> provide the missing configuration in source so the check has data to act on</li>
+<li><strong>Framework impact:</strong> SOC 2 CC7.2</li>
+</ul>
+</div>
+<h2>Compliance readiness</h2>
+<h3>ISO 27001</h3>
+<table>
+<tr><th scope="col">Control</th><th scope="col">Status</th><th scope="col">Checked by</th></tr>
+<tr><td>A.8.24</td><td>⚠ gap</td><td>GOLD-SEC-001</td></tr>
+</table>
+<p class="muted">*satisfied = this tool&#x27;s checks found no gaps in the controls it covers.</p>
+<h3>SOC 2</h3>
+<table>
+<tr><th scope="col">Control</th><th scope="col">Status</th><th scope="col">Checked by</th></tr>
+<tr><td>CC6.1</td><td>⚠ gap</td><td>GOLD-SEC-001, GOLD-SEC-003</td></tr>
+<tr><td>CC6.6</td><td>⚠ gap</td><td>GOLD-SEC-002</td></tr>
+<tr><td>CC7.2</td><td>? unknown</td><td>GOLD-SEC-005</td></tr>
+<tr><td>CC9.9</td><td>– not assessed</td><td>GOLD-OPS-999</td></tr>
+<tr><td>CC1.1</td><td>✓ satisfied*</td><td>GOLD-SEC-006</td></tr>
+</table>
+<p class="muted">*satisfied = this tool&#x27;s checks found no gaps in the controls it covers.</p>
+<h2>Rules not applicable to this architecture</h2>
+<p>GOLD-OPS-999</p>
+<h2>Passed checks</h2><ul>
+<li>GOLD-SEC-006 — <code>tf:root:aws_vpc.g</code></li>
+</ul>
+<h2>About this assessment</h2>
+<ul>
+<li>Tool: archscan 0.1.0.dev0</li>
+<li>Rules loaded: 8</li>
+<li>Graph source: golden (fixture)</li>
+<li>Score formula: 100 minus severity-weighted penalties: critical 15, high 10, medium 5, low 2; unknowns count half</li>
+</ul>
+</body>
+</html>

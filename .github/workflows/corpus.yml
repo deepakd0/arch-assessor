@@ -1,0 +1,22 @@
+name: Corpus
+
+# Weekly real-world Terraform corpus (spec 009 §6). Not run per-PR: it clones
+# external repos over the network. A failure here is a Phase 2
+# parser-coverage discovery, not necessarily a regression.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays, 06:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  corpus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements.txt pytest .
+      - name: Run corpus suite against pinned real-world repos
+        run: pytest tests/test_corpus.py -m corpus -v

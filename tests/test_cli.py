@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from conftest import TF
 
 from archassessor.cli.main import main
@@ -104,3 +105,77 @@ def test_framework_filter_limits_readiness_section(capsys) -> None:
     out, _ = capsys.readouterr()
     assert code in (0, 1)
     assert "### SOC 2" not in out
+
+
+def test_html_format(capsys) -> None:
+    code = main(["scan", str(TF / "simple"), "--format", "html", "-q"])
+    out, _ = capsys.readouterr()
+    assert code in (0, 1)
+    assert out.startswith("<!DOCTYPE html>")
+
+
+def test_nonexistent_rules_path_is_usage_error(capsys) -> None:
+    code = main(["scan", str(TF / "simple"), "--rules", "definitely/not/here"])
+    out, err = capsys.readouterr()
+    assert code == 2 and out == "" and "rules path does not exist" in err
+
+
+def test_path_is_a_file_not_directory_is_usage_error(tmp_path: Path, capsys) -> None:
+    a_file = tmp_path / "not_a_dir.tf"
+    a_file.write_text('resource "aws_vpc" "x" {}\n')
+    code = main(["scan", str(a_file)])
+    out, err = capsys.readouterr()
+    assert code == 2 and out == "" and "is not a directory" in err
+
+
+def test_all_files_unparseable_is_input_error(capsys) -> None:
+    code = main(["scan", str(TF / "all_broken")])
+    out, err = capsys.readouterr()
+    assert code == 3 and out == ""
+    assert "none of the 2 .tf files could be parsed" in err
+
+
+def test_custom_rule_colliding_with_builtin_id_is_input_error(capsys) -> None:
+    fixtures = Path(__file__).parent / "fixtures" / "rules_colliding"
+    code = main(["scan", str(TF / "simple"), "--rules", str(fixtures)])
+    _, err = capsys.readouterr()
+    assert code == 3
+    assert "duplicate rule id 'BASE-SEC-001'" in err
+    assert "own prefix" in err
+
+
+def test_output_write_failure_is_usage_error(capsys) -> None:
+    code = main(["scan", str(TF / "simple"), "-o", "/definitely/not/a/real/directory/out.md", "-q"])
+    out, err = capsys.readouterr()
+    assert code == 2 and out == ""
+    assert "cannot write output file" in err
+
+
+def test_output_write_temp_file_cleaned_up_on_rename_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys
+) -> None:
+    import os
+
+    original_replace = os.replace
+
+    def boom(src: str, dst: str) -> None:
+        raise OSError("simulated rename failure")
+
+    monkeypatch.setattr(os, "replace", boom)
+    out_path = tmp_path / "out.md"
+    code = main(["scan", str(TF / "simple"), "-o", str(out_path), "-q"])
+    _, err = capsys.readouterr()
+    assert code == 2 and "cannot write output file" in err
+    assert not out_path.exists()
+    # No leftover .tmp files from the failed atomic write.
+    assert list(tmp_path.glob("*.tmp")) == []
+    monkeypatch.setattr(os, "replace", original_replace)
+
+
+def test_entry_point_exits_with_main_code(monkeypatch: pytest.MonkeyPatch) -> None:
+    from archassessor.cli.main import entry
+
+    monkeypatch.setattr("sys.argv", ["archscan", "--version"])
+    with pytest.raises(SystemExit) as exc:
+        entry()
+    assert exc.value.code == 0

@@ -1,0 +1,12 @@
+# Real-world Terraform corpus (spec 009 §6).
+# Format: <git-url> <pinned-commit-sha> <name>
+# Verified to exist and pinned via `gh api repos/<org>/<repo>/commits/master` on 2026-07-06.
+# Not run per-PR: network + size. Discovers Phase 2 parser-coverage gaps (see
+# IMPLEMENTATION_STATUS.md item: parser leftovers).
+
+https://github.com/terraform-aws-modules/terraform-aws-vpc 3ffbd46fb1c7733e1b34d8666893280454e27436 vpc
+https://github.com/terraform-aws-modules/terraform-aws-security-group 58d8e895915f5573767081142d063b7caf7a2b47 security-group
+https://github.com/terraform-aws-modules/terraform-aws-s3-bucket 97bb13eff35489bd38993487c3d04c5b6d024cb6 s3-bucket
+https://github.com/terraform-aws-modules/terraform-aws-iam 5b962b1163790398605f2b17447cf5b6cc512237 iam
+https://github.com/terraform-aws-modules/terraform-aws-rds fa183b6b36204913fac1219d09b4979c1e60443a rds
+https://github.com/terraform-aws-modules/terraform-aws-alb 87f1c9c18408993abe951db5bf788c676abf0731 alb

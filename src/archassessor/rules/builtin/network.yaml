@@ -17,3 +17,27 @@
       direction: incoming
       target_type: subnet
       exists: true
+
+- id: BASE-NET-002
+  title: Internet-facing load balancers must be a deliberate choice
+  severity: info
+  category: network
+  description: >
+    An internet-facing load balancer is often correct, but it should be a
+    reviewed decision rather than a default. This rule surfaces every one of
+    them as an informational finding so a reviewer confirms it was intentional
+    — it is not itself evidence of a misconfiguration.
+  remediation: >
+    Confirm the `internal = false` (or omitted) setting is intended for this
+    load balancer. If not, set `internal = true` to keep it off the public
+    internet.
+  mappings:
+    soc2: [CC6.6]
+  match:
+    node_type: load_balancer
+    where:
+      property: scheme
+      equals: internet-facing
+  assert:
+    property: scheme
+    exists: false

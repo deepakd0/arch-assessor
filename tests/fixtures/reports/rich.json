@@ -1,0 +1,251 @@
+{
+  "findings": [
+    {
+      "category": "security",
+      "description": "Why GOLD-SEC-001 matters.",
+      "detail": "`prop` is false (expected true) for GOLD-SEC-001",
+      "mappings": {
+        "soc2": [
+          "CC6.1"
+        ]
+      },
+      "node_id": "tf:root:aws_s3_bucket.a",
+      "node_name": "a",
+      "node_type": "storage",
+      "remediation": "Fix GOLD-SEC-001 by setting the property to true.",
+      "rule_id": "GOLD-SEC-001",
+      "rule_title": "Golden rule GOLD-SEC-001",
+      "severity": "critical",
+      "source": {
+        "file": "main.tf",
+        "ingestor": "golden",
+        "line": 1
+      },
+      "verdict": "fail"
+    },
+    {
+      "category": "security",
+      "description": "Why GOLD-SEC-002 matters.",
+      "detail": "`prop` is false (expected true) for GOLD-SEC-002",
+      "mappings": {
+        "soc2": [
+          "CC6.6"
+        ]
+      },
+      "node_id": "tf:root:aws_db_instance.b",
+      "node_name": "b",
+      "node_type": "database",
+      "remediation": "Fix GOLD-SEC-002 by setting the property to true.",
+      "rule_id": "GOLD-SEC-002",
+      "rule_title": "Golden rule GOLD-SEC-002",
+      "severity": "high",
+      "source": {
+        "file": "main.tf",
+        "ingestor": "golden",
+        "line": 1
+      },
+      "verdict": "fail"
+    },
+    {
+      "category": "security",
+      "description": "Why GOLD-SEC-003 matters.",
+      "detail": "`prop` is false (expected true) for GOLD-SEC-003",
+      "mappings": {
+        "soc2": [
+          "CC6.1"
+        ]
+      },
+      "node_id": "tf:root:aws_kms_key.c",
+      "node_name": "c",
+      "node_type": "kms_key",
+      "remediation": "Fix GOLD-SEC-003 by setting the property to true.",
+      "rule_id": "GOLD-SEC-003",
+      "rule_title": "Golden rule GOLD-SEC-003",
+      "severity": "medium",
+      "source": {
+        "file": "main.tf",
+        "ingestor": "golden",
+        "line": 1
+      },
+      "verdict": "fail"
+    },
+    {
+      "category": "security",
+      "description": "Why GOLD-SEC-004 matters.",
+      "detail": "`prop` is false (expected true) for GOLD-SEC-004",
+      "mappings": {},
+      "node_id": "tf:root:aws_s3_bucket.d",
+      "node_name": "d",
+      "node_type": "storage",
+      "remediation": "Fix GOLD-SEC-004 by setting the property to true.",
+      "rule_id": "GOLD-SEC-004",
+      "rule_title": "Golden rule GOLD-SEC-004",
+      "severity": "low",
+      "source": {
+        "file": "main.tf",
+        "ingestor": "golden",
+        "line": 1
+      },
+      "verdict": "fail"
+    },
+    {
+      "category": "security",
+      "description": "Why GOLD-NET-001 matters.",
+      "detail": "`prop` is false (expected true) for GOLD-NET-001",
+      "mappings": {},
+      "node_id": "tf:root:aws_lb.e",
+      "node_name": "e",
+      "node_type": "load_balancer",
+      "remediation": "Fix GOLD-NET-001 by setting the property to true.",
+      "rule_id": "GOLD-NET-001",
+      "rule_title": "Golden rule GOLD-NET-001",
+      "severity": "info",
+      "source": {
+        "ingestor": "golden"
+      },
+      "verdict": "fail"
+    },
+    {
+      "category": "security",
+      "description": "Why GOLD-SEC-005 matters.",
+      "detail": "`prop` is false (expected true) for GOLD-SEC-005",
+      "mappings": {
+        "soc2": [
+          "CC7.2"
+        ]
+      },
+      "node_id": "tf:root:aws_db_instance.f",
+      "node_name": "f",
+      "node_type": "database",
+      "remediation": "Fix GOLD-SEC-005 by setting the property to true.",
+      "rule_id": "GOLD-SEC-005",
+      "rule_title": "Golden rule GOLD-SEC-005",
+      "severity": "high",
+      "source": {
+        "file": "main.tf",
+        "ingestor": "golden",
+        "line": 1
+      },
+      "verdict": "unknown"
+    }
+  ],
+  "frameworks": [
+    {
+      "control": "CC6.1",
+      "framework": "soc2",
+      "rule_ids": [
+        "GOLD-SEC-001",
+        "GOLD-SEC-003"
+      ],
+      "status": "gap"
+    },
+    {
+      "control": "CC6.6",
+      "framework": "soc2",
+      "rule_ids": [
+        "GOLD-SEC-002"
+      ],
+      "status": "gap"
+    },
+    {
+      "control": "CC7.2",
+      "framework": "soc2",
+      "rule_ids": [
+        "GOLD-SEC-005"
+      ],
+      "status": "unknown"
+    },
+    {
+      "control": "CC9.9",
+      "framework": "soc2",
+      "rule_ids": [
+        "GOLD-OPS-999"
+      ],
+      "status": "not_assessed"
+    },
+    {
+      "control": "CC1.1",
+      "framework": "soc2",
+      "rule_ids": [
+        "GOLD-SEC-006"
+      ],
+      "status": "satisfied"
+    },
+    {
+      "control": "A.8.24",
+      "framework": "iso27001",
+      "rule_ids": [
+        "GOLD-SEC-001"
+      ],
+      "status": "gap"
+    }
+  ],
+  "graph_metadata": {
+    "ingestor": "golden",
+    "source_root": "fixture"
+  },
+  "not_applicable_rule_ids": [
+    "GOLD-OPS-999"
+  ],
+  "results": [
+    {
+      "detail": "`prop` is false (expected true) for GOLD-SEC-001",
+      "node_id": "tf:root:aws_s3_bucket.a",
+      "rule_id": "GOLD-SEC-001",
+      "verdict": "fail"
+    },
+    {
+      "detail": "`prop` is false (expected true) for GOLD-SEC-002",
+      "node_id": "tf:root:aws_db_instance.b",
+      "rule_id": "GOLD-SEC-002",
+      "verdict": "fail"
+    },
+    {
+      "detail": "`prop` is false (expected true) for GOLD-SEC-003",
+      "node_id": "tf:root:aws_kms_key.c",
+      "rule_id": "GOLD-SEC-003",
+      "verdict": "fail"
+    },
+    {
+      "detail": "`prop` is false (expected true) for GOLD-SEC-004",
+      "node_id": "tf:root:aws_s3_bucket.d",
+      "rule_id": "GOLD-SEC-004",
+      "verdict": "fail"
+    },
+    {
+      "detail": "`prop` is false (expected true) for GOLD-NET-001",
+      "node_id": "tf:root:aws_lb.e",
+      "rule_id": "GOLD-NET-001",
+      "verdict": "fail"
+    },
+    {
+      "detail": "`prop` is false (expected true) for GOLD-SEC-005",
+      "node_id": "tf:root:aws_db_instance.f",
+      "rule_id": "GOLD-SEC-005",
+      "verdict": "unknown"
+    },
+    {
+      "detail": "ok",
+      "node_id": "tf:root:aws_vpc.g",
+      "rule_id": "GOLD-SEC-006",
+      "verdict": "pass"
+    }
+  ],
+  "schema_version": "1.0",
+  "summary": {
+    "findings_by_severity": {
+      "critical": 1,
+      "high": 2,
+      "info": 1,
+      "low": 1,
+      "medium": 1
+    },
+    "nodes_total": 8,
+    "results_fail": 5,
+    "results_pass": 1,
+    "results_unknown": 1,
+    "rules_evaluated": 7,
+    "rules_not_applicable": 1,
+    "score": 63
+  }
+}

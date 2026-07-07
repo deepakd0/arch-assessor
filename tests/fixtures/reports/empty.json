@@ -1,0 +1,27 @@
+{
+  "findings": [],
+  "frameworks": [],
+  "graph_metadata": {
+    "ingestor": "golden",
+    "source_root": "empty"
+  },
+  "not_applicable_rule_ids": [],
+  "results": [],
+  "schema_version": "1.0",
+  "summary": {
+    "findings_by_severity": {
+      "critical": 0,
+      "high": 0,
+      "info": 0,
+      "low": 0,
+      "medium": 0
+    },
+    "nodes_total": 0,
+    "results_fail": 0,
+    "results_pass": 0,
+    "results_unknown": 0,
+    "rules_evaluated": 0,
+    "rules_not_applicable": 0,
+    "score": 100
+  }
+}
